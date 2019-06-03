@@ -1,0 +1,8 @@
+name: DiscretePDEs
+dependencies:
+  - python=3.6
+  - numpy
+  - scipy
+  - matplotlib
+  - pip:
+    - gdspy == 1.3.2

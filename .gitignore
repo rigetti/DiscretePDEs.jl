@@ -1,0 +1,4 @@
+*.cov
+*.log
+.env
+*.geo
