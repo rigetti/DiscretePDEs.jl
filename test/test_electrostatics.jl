@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using LinearAlgebra: norm, normalize
 using UniqueVectors: UniqueVector
@@ -53,11 +52,11 @@ for (N, factor) in [(2, .3), (3, .45)]
     group_dict = DPE.get_physical_groups(node_tags, points)
     @test typeof(tcomp) <: TriangulatedComplex{N, K}
     comp = tcomp.complex
-    DEC.orient!(comp)
+    orient!(comp)
     sources = [DPE.get_charge_source(comp, group_dict["Conductor"])]
-    _, exterior = DEC.boundary_components_connected(comp)
+    _, exterior = boundary_components_connected(comp)
     m = Metric(N)
-    mesh = Mesh(tcomp, DEC.circumcenter(m))
+    mesh = Mesh(tcomp, circumcenter(m))
 
     ϵ = 2
     ϵ_form = DPE.get_material(comp, group_dict["Dielectric"], ϵ, 2)

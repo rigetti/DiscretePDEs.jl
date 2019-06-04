@@ -1,5 +1,5 @@
-using DiscreteExteriorCalculus: Metric, Simplex, Mesh
-import DiscreteExteriorCalculus; const DEC = DiscreteExteriorCalculus
+using DiscreteExteriorCalculus: Metric, Simplex, Mesh, hodge_square_sign, sharp,
+    differential_operator_sequence, differential_operator, subcomplex, orient!
 using SparseArrays: spdiagm
 using AdmittanceModels: Blackbox, PSOModel, apply_transform, sparse_nullbasis,
     impedance_matrices, admittance_matrices
@@ -14,8 +14,8 @@ function electrostatics_blackbox(m::Metric{N}, mesh::Mesh{N, K},
     boundary_points::AbstractVector{Cell{N}},
     ϵ::AbstractVector{<:Real}) where {N, K}
     k = 1
-    pm = -DEC.hodge_square_sign(m, K, k)
-    d₁, ★, d₀ = DEC.differential_operator_sequence(m, mesh, "d★d", k, true)
+    pm = -hodge_square_sign(m, K, k)
+    d₁, ★, d₀ = differential_operator_sequence(m, mesh, "d★d", k, true)
     Y = pm * d₁ * ★ * spdiagm(0 => ϵ) * d₀
     comp = mesh.primal.complex
     row_inds = [findfirst(isequal(s[1]), comp.cells[k]) for s in sources]
@@ -35,7 +35,7 @@ electrostatics_blackbox(m::Metric{N}, mesh::Mesh{N, K},
     electrostatics_blackbox(m, mesh, sources, boundary.cells[1], ϵ)
 
 get_charge_source(comp::CellComplex{N}, group::AbstractVector{Simplex{N, K}}) where {N, K} =
-    DEC.submanifold(comp, group).cells[1]
+    subcomplex(comp, group).cells[1]
 
 ################################################################################
 # Electrodynamics without charge
@@ -50,10 +50,10 @@ function coulomb_pso(m::Metric{N}, mesh::Mesh{N, K},
     μ⁻::AbstractVector{<:Real}, Λ⁻::AbstractVector{<:Real},
     σ::AbstractVector{<:Real}, ϵ::AbstractVector{<:Real}) where {N, K}
     k = 2
-    pm = DEC.hodge_square_sign(m, K, k)
-    d₁, ★, d₀ = DEC.differential_operator_sequence(m, mesh, "d★d", k, true)
+    pm = hodge_square_sign(m, K, k)
+    d₁, ★, d₀ = differential_operator_sequence(m, mesh, "d★d", k, true)
     K₀ = pm * d₁ * ★ * spdiagm(0 => μ⁻) * d₀
-    d, ★ = DEC.differential_operator_sequence(m, mesh, "d★", k, true)
+    d, ★ = differential_operator_sequence(m, mesh, "d★", k, true)
     K₁ = ★ * spdiagm(0 => Λ⁻)
     G = ★ * spdiagm(0 => σ)
     C = ★ * spdiagm(0 => ϵ)
@@ -76,7 +76,7 @@ coulomb_pso(m::Metric{N}, mesh::Mesh{N, K},
     coulomb_pso(m, mesh, sources, boundary.cells[1], boundary.cells[2], μ⁻, Λ⁻, σ, ϵ)
 
 get_current_source(comp::CellComplex{N}, group::AbstractVector{Simplex{N, K}}) where {N, K} =
-    DEC.orient!(DEC.submanifold(comp, group).cells[2])
+    orient!(subcomplex(comp, group).cells[2])
 
 ################################################################################
 # Magnetostatics
@@ -124,23 +124,23 @@ admittance_matrix(bbox::Blackbox, null_basis::AbstractMatrix{<:Real}) =
 
 # E = -dφ, estimate ♯E, a vector field
 φ_to_vec_E(m::Metric{N}, mesh::Mesh{N}, φ::AbstractVector{<:Real}) where N =
-    DEC.sharp(m, mesh.primal.complex, -DEC.differential_operator(m, mesh, "d", 1, true, φ))
+    sharp(m, mesh.primal.complex, -differential_operator(m, mesh, "d", 1, true, φ))
 
 # B = ★dA, estimate ♯B, a dual vector field
 A_to_vec_B(m::Metric{N}, mesh::Mesh{N}, A::AbstractVector{<:Real}) where N =
-    DEC.sharp(m, mesh.dual.complex, DEC.differential_operator(m, mesh, "★d", 2, true, A))
+    sharp(m, mesh.dual.complex, differential_operator(m, mesh, "★d", 2, true, A))
 
 # Q = ★ρ so ρ = s★Q where s = ★★. Similarly, J = s★I.
 function source_density(m::Metric{N}, mesh::Mesh{N, K},
     source::AbstractVector{<:Real}, k::Int) where {N, K}
-    pm = DEC.hodge_square_sign(m, K, k)
-    return pm * DEC.differential_operator(m, mesh, "★", K-k+1, false, source)
+    pm = hodge_square_sign(m, K, k)
+    return pm * differential_operator(m, mesh, "★", K-k+1, false, source)
 end
 
 function get_material(comp::CellComplex{N}, group::AbstractVector{Simplex{N, K}},
     value::Real, k::Int) where {N, K}
     material = zeros(length(comp.cells[k]))
-    for c in DEC.submanifold(comp, group).cells[k]
+    for c in subcomplex(comp, group).cells[k]
         material[findfirst(isequal(c), comp.cells[k])] = value
     end
     return material

@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using UniqueVectors: UniqueVector
 using LinearAlgebra: diag
@@ -26,21 +25,19 @@ node_tags, points, tcomp = DPE.get_triangulated_complex(N, K, 1e-3)
 group_dict = DPE.get_physical_groups(node_tags, points)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
+orient!(comp)
 sources = [DPE.get_charge_source(comp, group_dict[k])
     for k in ["Pad 1", "Pad 2"]]
-exterior = DEC.boundary(comp)
+exterior = boundary(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 ϵr = 2
 ϵ_form = DPE.ϵ₀ * (DPE.get_material(comp, 1, 2) +
     DPE.get_material(comp, group_dict["Substrate"], ϵr-1, 2))
 
-b = CellComplex{N, K-1}()
-append!(b, exterior)
-append!(b, DEC.submanifold(comp, group_dict["Ground"]))
-bbox, null_basis = DPE.electrostatics_blackbox(m, mesh, sources, b, ϵ_form)
+bbox, null_basis = DPE.electrostatics_blackbox(m, mesh, sources,
+    append!(subcomplex(comp, group_dict["Ground"]), boundary(comp)), ϵ_form)
 
 capacitance = DPE.admittance_matrix(bbox, null_basis)
 
@@ -56,7 +53,7 @@ if false
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
     DPE.add_field!("Electric field", node_tags, vec_E[ordering])
-    sub_points = UniqueVector([c.points[1] for c in DEC.submanifold(comp,
+    sub_points = UniqueVector([c.points[1] for c in subcomplex(comp,
         vcat(group_dict["Pad 1"], group_dict["Pad 2"], group_dict["Ground"])).cells[1]])
     sub_inds = findall([p in sub_points for p in points])
     DPE.add_field!("Charge density", node_tags[sub_inds], ρ[ordering[sub_inds]])

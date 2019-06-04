@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using UniqueVectors: UniqueVector
 using AdmittanceModels: lossless_modes_dense, apply_transform
@@ -18,10 +17,9 @@ DPE.mesh!(K)
 node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 group_dict = DPE.get_physical_groups(node_tags, points)
 comp = tcomp.complex
-DEC.orient!(comp)
-boundary = DEC.boundary(comp)
+orient!(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 μ⁻, Λ⁻, σ, ϵ = 1/DPE.μ₀, 0, 0, DPE.ϵ₀
 μ⁻_form = DPE.get_material(comp, μ⁻, 3)
@@ -29,7 +27,7 @@ mesh = Mesh(tcomp, DEC.circumcenter(m))
 σ_form = DPE.get_material(comp, σ, 2)
 ϵ_form = DPE.get_material(comp, ϵ, 2)
 
-pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary,
+pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary(comp),
     μ⁻_form, Λ⁻_form, σ_form, ϵ_form)
 constrained_pso = apply_transform(pso, null_basis)
 λs, vs = lossless_modes_dense(constrained_pso, min_freq=1e6)
@@ -44,7 +42,7 @@ if false
     v = null_basis * vs[:,1]
     v /= maximum(abs.(v))
 
-    vec_A = DEC.sharp(m, comp, v)
+    vec_A = sharp(m, comp, v)
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
     DPE.add_field!("Vector potential", node_tags, vec_A[ordering])

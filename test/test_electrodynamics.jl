@@ -1,9 +1,8 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using UniqueVectors: UniqueVector
 using LinearAlgebra: norm
-using AdmittanceModels: lossless_modes_sparse, apply_transform, get_Y
+using AdmittanceModels: lossless_modes_dense, apply_transform, get_Y
 
 # Modes of a rectangular box with constant μ and ϵ.
 box_modes(m, n, l, a, b, c, μ, ϵ) = sqrt((m * π/a)^2 + (n * π/b)^2 +
@@ -26,10 +25,9 @@ node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 group_dict = DPE.get_physical_groups(node_tags, points)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
-boundary = DEC.boundary(comp)
+orient!(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 μ⁻, ϵ = 2, 3
 μ⁻_form = DPE.get_material(comp, μ⁻, 3)
@@ -37,7 +35,7 @@ mesh = Mesh(tcomp, DEC.circumcenter(m))
 σ_form = DPE.get_material(comp, 0, 2)
 ϵ_form = DPE.get_material(comp, ϵ, 2)
 
-pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary,
+pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary(comp),
     μ⁻_form, Λ⁻_form, σ_form, ϵ_form)
 constrained_pso = apply_transform(pso, null_basis)
 
@@ -45,14 +43,14 @@ density(mat) = count(!iszero, mat)/(size(mat, 1) * size(mat, 2))
 @test density(null_basis) < .002
 @test all(map(density, get_Y(constrained_pso)) .< .05)
 
-λs, vs = lossless_modes_sparse(constrained_pso, maxiter=1e5)
+λs, vs = lossless_modes_dense(constrained_pso)
 freq = imag(λs[1])/(2π)
 correct_freq = box_modes(0,1,1,a,b,c,1/μ⁻,ϵ)
 
 comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
 correct_vec_A = [correct_A(p.coords...) for p in comp_points]
 correct_vec_A /= maximum(norm.(correct_vec_A))
-vec_A = DEC.sharp(m, comp, null_basis * vs[:,1])
+vec_A = sharp(m, comp, null_basis * vs[:,1])
 vec_A /= maximum(norm.(vec_A))
 i = argmax(norm.(correct_vec_A))
 vec_A *= sign(transpose(vec_A[i]) * correct_vec_A[i])

@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using LinearAlgebra: norm, normalize
 using UniqueVectors: UniqueVector
@@ -40,27 +39,29 @@ node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 group_dict = DPE.get_physical_groups(node_tags, points)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
-sources = [DPE.get_current_source(comp, group_dict[k]) for k in ["Wire center", "Loop", "Wire offset"]]
-boundary = DEC.boundary(comp)
+orient!(comp)
+sources = [DPE.get_current_source(comp, group_dict[k]) for k in
+    ["Wire center", "Loop", "Wire offset"]]
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 μ⁻, Λ⁻ = 2, 0
 μ⁻_form = DPE.get_material(comp, μ⁻, 3)
 Λ⁻_form = DPE.get_material(comp, Λ⁻, 2)
 
-bbox, null_basis = DPE.magnetostatics_blackbox(m, mesh,
-    sources, boundary, μ⁻_form, Λ⁻_form)
+bbox, null_basis = DPE.magnetostatics_blackbox(m, mesh, sources, boundary(comp),
+    μ⁻_form, Λ⁻_form)
 inductance = DPE.impedance_matrix(bbox, null_basis)
 @testset "mutual inductance of wires and loops" begin
-    @test isapprox(abs(inductance[1,3]), abs((log(radius) - log(offset1)) * height/(2π*μ⁻)), rtol=3e-2)
-    @test isapprox(abs(inductance[1,2]), abs((log(offset1) - log(offset2)) * height * (1-2*height_fraction)/(2π*μ⁻)), rtol=3e-2)
+    @test isapprox(abs(inductance[1,3]),
+        abs((log(radius) - log(offset1)) * height/(2π*μ⁻)), rtol=3e-2)
+    @test isapprox(abs(inductance[1,2]),
+        abs((log(offset1) - log(offset2)) * height * (1-2*height_fraction)/(2π*μ⁻)), rtol=3e-2)
 end
 
 if false
     A, _ = DPE.solve_statics(bbox, null_basis, [0.0, 1.0, 0.0])
-    vec_A = DEC.sharp(m, comp, A)
+    vec_A = sharp(m, comp, A)
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
     DPE.add_field!("Vector potential", node_tags, vec_A[ordering])

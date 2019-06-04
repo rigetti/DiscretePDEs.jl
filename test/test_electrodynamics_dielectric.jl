@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using UniqueVectors: UniqueVector
 using LinearAlgebra: norm
@@ -21,7 +20,12 @@ a, b, c, y0 = 10, 12, 14, 8
 quadratic_coef = y0^2/(ϵr * (y0 - b)^2) - 1
 linear_coef = -2 * y0 * π/(ϵr * (y0 - b)^2)
 constant_coef = (π/c)^2 * (1/ϵr - 1) + π^2/(ϵr * (y0 - b)^2)
-αs = DEC.solve_quadratic(quadratic_coef, linear_coef, constant_coef)
+function solve_quadratic(a, b, c)
+    t1 = -b
+    t2 = sqrt(b^2 - 4 * a * c)
+    return (t1 + t2)/(2 * a), (t1 - t2)/(2 * a)
+end
+αs = solve_quadratic(quadratic_coef, linear_coef, constant_coef)
 α = αs[argmin(abs.(αs .- π/b))]
 β = (α * y0 - π)/(y0 - b)
 γ = π - β * b
@@ -47,10 +51,9 @@ node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 group_dict = DPE.get_physical_groups(node_tags, points)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
-boundary = DEC.boundary(comp)
+orient!(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 μ⁻_form = DPE.get_material(comp, 1/μ, 3)
 Λ⁻_form = DPE.get_material(comp, 0, 2)
@@ -58,7 +61,7 @@ mesh = Mesh(tcomp, DEC.circumcenter(m))
 ϵ_form = DPE.get_material(comp, group_dict["1"], ϵ, 2) +
     DPE.get_material(comp, group_dict["2"], ϵr * ϵ, 2)
 
-pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary,
+pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary(comp),
     μ⁻_form, Λ⁻_form, σ_form, ϵ_form)
 constrained_pso = apply_transform(pso, null_basis)
 
@@ -68,7 +71,7 @@ freq = imag.(λs[1])/(2π)
 comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
 correct_vec_A = [correct_A(p.coords...) for p in comp_points]
 correct_vec_A /= maximum(norm.(correct_vec_A))
-vec_A = DEC.sharp(m, comp, null_basis * vs[:,1])
+vec_A = sharp(m, comp, null_basis * vs[:,1])
 vec_A /= maximum(norm.(vec_A))
 i = argmax(norm.(correct_vec_A))
 vec_A *= sign(transpose(vec_A[i]) * correct_vec_A[i])

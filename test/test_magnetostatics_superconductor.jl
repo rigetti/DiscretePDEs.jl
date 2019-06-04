@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using LinearAlgebra: norm, normalize
 using UniqueVectors: UniqueVector
@@ -35,37 +34,34 @@ node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 group_dict = DPE.get_physical_groups(node_tags, points)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
+orient!(comp)
 sources = [DPE.get_current_source(comp, group_dict[k])
     for k in ["1", "2"]]
-boundary = DEC.boundary(comp)
+bound = boundary(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
 μ⁻, Λ⁻ = 2, 0
 μ⁻_form = DPE.get_material(comp, μ⁻, 3)
 Λ⁻_form = DPE.get_material(comp, Λ⁻, 2)
 
-b = CellComplex{N, K}()
-append!(b, boundary)
-append!(b, DEC.submanifold(comp, group_dict["Superconductor"]))
-bbox, null_basis = DPE.magnetostatics_blackbox(m, mesh,
-    sources, b, μ⁻_form, Λ⁻_form)
+bbox, null_basis = DPE.magnetostatics_blackbox(m, mesh, sources,
+    append!(subcomplex(comp, group_dict["Superconductor"]), bound), μ⁻_form, Λ⁻_form)
 
 if false
     A, I = DPE.solve_statics(bbox, null_basis, [1.0, 1.0])
-    vec_A = DEC.sharp(m, comp, A)
+    vec_A = sharp(m, comp, A)
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
     DPE.add_field!("Vector potential", node_tags, vec_A[ordering])
     J = DPE.source_density(m, mesh, I, 2)
-    vec_J = DEC.sharp(m, comp, J)
+    vec_J = sharp(m, comp, J)
     # current on superconductor
-    sub_points = UniqueVector([c.points[1] for c in DEC.submanifold(comp, group_dict["Superconductor"]).cells[1]])
+    sub_points = UniqueVector([c.points[1] for c in subcomplex(comp, group_dict["Superconductor"]).cells[1]])
     sub_inds = findall([p in sub_points for p in points])
     DPE.add_field!("Current density superconductor", node_tags[sub_inds], vec_J[ordering[sub_inds]])
     # current on boundary
-    sub_points = UniqueVector([c.points[1] for c in boundary.cells[1]])
+    sub_points = UniqueVector([c.points[1] for c in bound.cells[1]])
     sub_inds = findall([p in sub_points for p in points])
     DPE.add_field!("Current density boundary", node_tags[sub_inds], vec_J[ordering[sub_inds]])
     DPE.gui!()

@@ -1,5 +1,4 @@
 using Test, DiscreteExteriorCalculus, DiscretePDEs
-const DEC = DiscreteExteriorCalculus
 const DPE = DiscretePDEs
 using UniqueVectors: UniqueVector
 using LinearAlgebra: issymmetric, eigen, norm
@@ -19,11 +18,11 @@ DPE.mesh!(K)
 node_tags, points, tcomp = DPE.get_triangulated_complex(N, K)
 @test typeof(tcomp) <: TriangulatedComplex{N, K}
 comp = tcomp.complex
-DEC.orient!(comp)
+orient!(comp)
 m = Metric(N)
-mesh = Mesh(tcomp, DEC.circumcenter(m))
+mesh = Mesh(tcomp, circumcenter(m))
 
-laplacian = DEC.differential_operator(m, mesh, "Δ", 1, true)
+laplacian = differential_operator(m, mesh, "Δ", 1, true)
 
 vals, vects = eigen(collect(laplacian))
 inds = sortperm(vals)
