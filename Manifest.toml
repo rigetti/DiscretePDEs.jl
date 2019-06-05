@@ -75,7 +75,7 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[DiscreteExteriorCalculus]]
 deps = ["Combinatorics", "Documenter", "LinearAlgebra", "MatrixNetworks", "SparseArrays", "StaticArrays", "Statistics", "UniqueVectors", "VoronoiDelaunay"]
-git-tree-sha1 = "ab8b897a70860028a3b61d1366c82169ca5f4aa4"
+git-tree-sha1 = "feb71fdd45c3cb541c175d477f6cb6ef07a6d8e5"
 repo-rev = "documentation"
 repo-url = "git@github.com:rigetti/DiscreteExteriorCalculus.jl.git"
 uuid = "0a3a9624-8642-11e9-0f42-fd2a0d40ec72"

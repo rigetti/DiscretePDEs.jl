@@ -34,7 +34,7 @@ constrained_pso = apply_transform(pso, null_basis)
 freq = imag.(λs[1])/(2π)
 
 hfss_answer = 1.97194e6
-@testset "box with boxes" begin
+@testset "modes of box with superconductors" begin
     @test isapprox(freq, hfss_answer, rtol=6e-2)
 end
 
