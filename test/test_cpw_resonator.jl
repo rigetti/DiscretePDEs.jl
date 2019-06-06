@@ -39,14 +39,20 @@ constrained_pso = apply_transform(pso, null_basis)
 λs, vs = lossless_modes_dense(constrained_pso, min_freq=1e9)
 freqs = imag.(λs)/(2π)
 
-if false
-    v = null_basis * vs[:,1]
-    v /= maximum(abs.(v))
+hfss_answers = [47.0946, 140.140] * 1e9
+@testset "cpw resonator" begin
+    @test isapprox(freqs[1:2], hfss_answers, rtol=1.5e-1)
+end
 
-    vec_A = sharp(m, comp, v)
+if false
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
-    DPE.add_field!("Vector potential", node_tags, vec_A[ordering])
+    for i in 1:2
+        v = null_basis * vs[:,i]
+        v /= maximum(abs.(v))
+        vec_A = sharp(m, comp, v)
+        DPE.add_field!("Vector potential mode $i", node_tags, vec_A[ordering])
+    end
     DPE.gui!()
 end
 rm(file_name)
