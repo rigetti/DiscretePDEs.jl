@@ -2,7 +2,7 @@
 
 [[AdmittanceModels]]
 deps = ["Combinatorics", "IterativeSolvers", "LinearAlgebra", "MatrixNetworks", "SparseArrays", "Test", "UniqueVectors"]
-git-tree-sha1 = "ee0c872e219f9e2cb6d01406ce129d1ae78fde9b"
+git-tree-sha1 = "0c519ba592e39ad45e128cfd40d6b80f0840dfb1"
 repo-rev = "master"
 repo-url = "git@github.com:rigetti/AdmittanceModels.jl.git"
 uuid = "88a7bace-b6cd-11e8-0e38-19740a683dcd"
