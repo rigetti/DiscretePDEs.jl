@@ -1,5 +1,5 @@
-using DiscreteExteriorCalculus: Metric, Simplex, Mesh, hodge_square_sign, sharp,
-    differential_operator_sequence, differential_operator, subcomplex, orient!
+using DiscreteExteriorCalculus: Metric, Simplex, Mesh, sharp, subcomplex, orient!,
+    differential_operator_sequence, differential_operator
 using SparseArrays: spdiagm
 using AdmittanceModels: Blackbox, PSOModel, apply_transform, sparse_nullbasis,
     impedance_matrices, admittance_matrices
@@ -14,9 +14,8 @@ function electrostatics_blackbox(m::Metric{N}, mesh::Mesh{N, K},
     boundary_points::AbstractVector{Cell{N}},
     ϵ::AbstractVector{<:Real}) where {N, K}
     k = 1
-    pm = -hodge_square_sign(m, K, k)
-    d₁, ★, d₀ = differential_operator_sequence(m, mesh, "d★d", k, true)
-    Y = pm * d₁ * ★ * spdiagm(0 => ϵ) * d₀
+    ★★, d₁, ★, d₀ = differential_operator_sequence(m, mesh, "★★d★d", k, true)
+    Y = -★★ * d₁ * ★ * spdiagm(0 => ϵ) * d₀
     comp = mesh.primal.complex
     row_inds = [findfirst(isequal(s[1]), comp.cells[k]) for s in sources]
     n = length(sources)
@@ -50,9 +49,8 @@ function coulomb_pso(m::Metric{N}, mesh::Mesh{N, K},
     μ⁻::AbstractVector{<:Real}, Λ⁻::AbstractVector{<:Real},
     σ::AbstractVector{<:Real}, ϵ::AbstractVector{<:Real}) where {N, K}
     k = 2
-    pm = hodge_square_sign(m, K, k)
-    d₁, ★, d₀ = differential_operator_sequence(m, mesh, "d★d", k, true)
-    K₀ = pm * d₁ * ★ * spdiagm(0 => μ⁻) * d₀
+    ★★, d₁, ★, d₀ = differential_operator_sequence(m, mesh, "★★d★d", k, true)
+    K₀ = ★★ * d₁ * ★ * spdiagm(0 => μ⁻) * d₀
     d, ★ = differential_operator_sequence(m, mesh, "d★", k, true)
     K₁ = ★ * spdiagm(0 => Λ⁻)
     G = ★ * spdiagm(0 => σ)
@@ -130,11 +128,10 @@ admittance_matrix(bbox::Blackbox, null_basis::AbstractMatrix{<:Real}) =
 A_to_vec_B(m::Metric{N}, mesh::Mesh{N}, A::AbstractVector{<:Real}) where N =
     sharp(m, mesh.dual.complex, differential_operator(m, mesh, "★d", 2, true, A))
 
-# Q = ★ρ so ρ = s★Q where s = ★★. Similarly, J = s★I.
+# Q = ★ρ so ρ = ★★★Q. Similarly, J = ★★★I.
 function source_density(m::Metric{N}, mesh::Mesh{N, K},
     source::AbstractVector{<:Real}, k::Int) where {N, K}
-    pm = hodge_square_sign(m, K, k)
-    return pm * differential_operator(m, mesh, "★", K-k+1, false, source)
+    return differential_operator(m, mesh, "★★★", K-k+1, false, source)
 end
 
 function get_material(comp::CellComplex{N}, group::AbstractVector{Simplex{N, K}},
