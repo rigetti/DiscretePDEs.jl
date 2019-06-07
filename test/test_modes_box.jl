@@ -35,7 +35,7 @@ mesh = Mesh(tcomp, circumcenter(m))
 σ_form = DPE.get_material(comp, 0, 2)
 ϵ_form = DPE.get_material(comp, ϵ, 2)
 
-pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[], boundary(comp),
+pso, null_basis = DPE.electrodynamics_pso(m, mesh, Vector{Cell{N}}[], boundary(comp),
     μ⁻_form, Λ⁻_form, σ_form, ϵ_form)
 constrained_pso = apply_transform(pso, null_basis)
 

@@ -31,7 +31,7 @@ mesh = Mesh(tcomp, circumcenter(m))
 ϵ_form = DPE.ϵ₀ * (DPE.get_material(comp, 1, 2) +
     DPE.get_material(comp, group_dict["Substrate"], ϵr-1, 2))
 
-pso, null_basis = DPE.coulomb_pso(m, mesh, Vector{Cell{N}}[],
+pso, null_basis = DPE.electrodynamics_pso(m, mesh, Vector{Cell{N}}[],
     append!(subcomplex(comp, group_dict["Superconductor"]), boundary(comp)),
     μ⁻_form, Λ⁻_form, σ_form, ϵ_form)
 constrained_pso = apply_transform(pso, null_basis)

@@ -49,7 +49,7 @@ end
 if false
     φ, q = DPE.solve_statics(bbox, null_basis, [1.0, -1.0])
     ρ = DPE.source_density(m, mesh, q, 1)
-    vec_E = DPE.φ_to_vec_E(m, mesh, φ)
+    vec_E = DPE.electric_field(m, mesh, φ)
     comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
     ordering = [findfirst(isequal(p), comp_points) for p in points]
     DPE.add_field!("Electric field", node_tags, vec_E[ordering])

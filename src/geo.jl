@@ -1,8 +1,4 @@
 using UniqueVectors: UniqueVector
-import Base: append!, ==
-
-export Geo, GeoPoint, GeoLine, GeoCurve, GeoPlane, GeoSurfaceDifference,
-    GeoSurfaceExtrusion, GeoSurfaceGroup, GeoVolumeGroup, GeoCode
 
 abstract type Geo end
 
@@ -55,6 +51,19 @@ struct GeoVolumeGroup <: Geo
     extrusions::Vector{GeoSurfaceExtrusion}
 end
 
+export GeoCode
+"""
+    GeoCode(points::UniqueVector{GeoPoint}, lines::UniqueVector{GeoLine}
+        curves::UniqueVector{GeoCurve}, planes::UniqueVector{GeoPlane},
+        surface_differences::UniqueVector{GeoSurfaceDifference},
+        extrusions::UniqueVector{GeoSurfaceExtrusion},
+        volume_differences::UniqueVector{GeoVolumeDifference},
+        surface_groups::UniqueVector{GeoSurfaceGroup},
+        volume_groups::UniqueVector{GeoVolumeGroup})
+    GeoCode()
+
+A representation of the .geo format for constructive solid geometry accepted by Gmsh.
+"""
 struct GeoCode <: Geo
     points::UniqueVector{GeoPoint}
     lines::UniqueVector{GeoLine}
@@ -67,6 +76,7 @@ struct GeoCode <: Geo
     volume_groups::UniqueVector{GeoVolumeGroup}
 end
 
+import Base: ==
 function ==(g1::Geo, g2::Geo)
     if typeof(g1) != typeof(g2)
         return false
@@ -81,6 +91,7 @@ end
 
 GeoCode() = GeoCode([UniqueVector(eltype(t)[]) for t in fieldtypes(GeoCode)]...)
 
+import Base: append!
 function append!(g1::GeoCode, g2::GeoCode)
     for n in fieldnames(GeoCode)
         arr = getfield(g1, n)
@@ -193,9 +204,18 @@ function compile(gc::GeoCode)
     return code
 end
 
-function geo_write!(file_name::String, gc::GeoCode=GeoCode();
-    random_factor=1e-9, random_factor_3D=1e-9,
-    characteristic_length_factor::Real=1, footer::String="")
+export geo_write!
+"""
+    geo_write!(file_name::String, gc::GeoCode=GeoCode(); random_factor=1e-9,
+        random_factor_3D=1e-9, characteristic_length_factor::Real=1, footer::String="")
+
+Write the contents of a GeoCode to a file along with additional geo code in `footer`.
+The `random_factor` and `random_factor_3D` arguments adjust how Gmsh uses randomness in its
+2D and 3D meshing algorithms, respectively. `characteristic_length_factor` scales the
+characteristic length of the mesh; smaller values yield denser meshes.
+"""
+function geo_write!(file_name::String, gc::GeoCode=GeoCode(); random_factor=1e-9,
+    random_factor_3D=1e-9, characteristic_length_factor::Real=1, footer::String="")
     code_strings = ["Mesh.RandomFactor=$random_factor;\n";
                     "Mesh.RandomFactor3D=$random_factor_3D;\n";
                     "Mesh.CharacteristicLengthFactor=$characteristic_length_factor;\n";
@@ -210,7 +230,12 @@ function geo_write!(file_name::String, gc::GeoCode=GeoCode();
     close(file)
 end
 
-# Generate a closed 3D curve. The 4th element of each point is a mesh size.
+"""
+    GeoCode(points::AbstractVector{<:NTuple{4, <:Real}})
+
+Generate the GeoCode for a closed 3D curve. The 4th element of each point is a mesh size
+that Gmsh uses to spatially modulate the mesh density.
+"""
 function GeoCode(points::AbstractVector{<:NTuple{4, <:Real}})
     gc = GeoCode()
     for p in points

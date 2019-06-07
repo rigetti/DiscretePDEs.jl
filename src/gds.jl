@@ -169,6 +169,12 @@ function GeoCode(cell::PyObject;
     return geo_code
 end
 
+export gdspy_open
+"""
+    gdspy_open(file_name::AbstractString, cell_name::AbstractString)
+
+Use gdspy to open a .gds file. Return the cell corresponding to `cell_name`.
+"""
 function gdspy_open(file_name::AbstractString, cell_name::AbstractString)
     gds = pyimport("gdspy").GdsLibrary().read_gds(file_name)
     return gds.cell_dict[cell_name]

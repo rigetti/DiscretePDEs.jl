@@ -1,8 +1,13 @@
 using DiscreteExteriorCalculus: Point, Cell, CellComplex
 using SparseArrays: sparse
 
-# Construct a constraint matrix requiring that a k-form is constant on
-# given k-cells.
+"""
+    constant_constraint(comp::CellComplex{N},
+        cells::AbstractVector{Cell{N}}, k::Int) where N
+
+Find a sparse representation of the constraint that a `k-1` form is constant on given
+`k-1` dimensional cells.
+"""
 function constant_constraint(comp::CellComplex{N},
     cells::AbstractVector{Cell{N}}, k::Int) where N
     row_inds, col_inds, vals = Int[], Int[], Float64[]
@@ -15,10 +20,14 @@ function constant_constraint(comp::CellComplex{N},
     return sparse(row_inds, col_inds, vals, length(cells)-1, length(comp.cells[k]))
 end
 
-# Construct a constraint matrix requiring that a k-form is 0 on
-# given k-cells.
-function zero_constraint(comp::CellComplex{N},
-    cells::AbstractVector{Cell{N}}, k::Int) where N
+"""
+    zero_constraint(comp::CellComplex{N}, cells::AbstractVector{Cell{N}}, k::Int) where N
+
+Find a sparse representation of the constraint that a `k-1` form is zero on given `k-1`
+dimensional cells.
+"""
+function zero_constraint(comp::CellComplex{N}, cells::AbstractVector{Cell{N}},
+    k::Int) where N
     col_inds = [findfirst(isequal(c), comp.cells[k]) for c in cells]
     num_rows = length(col_inds)
     return sparse(1:num_rows, col_inds, ones(num_rows), num_rows, length(comp.cells[k]))

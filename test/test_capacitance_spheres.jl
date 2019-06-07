@@ -79,7 +79,7 @@ for (N, factor) in [(2, .3), (3, .45)]
     end
     if false # make plots with Gmsh
         ρ = DPE.source_density(m, mesh, q, 1)
-        vec_E = [N == 2 ? [p..., 0] : p for p in DPE.φ_to_vec_E(m, mesh, φ)]
+        vec_E = [N == 2 ? [p..., 0] : p for p in DPE.electric_field(m, mesh, φ)]
         comp_points = UniqueVector([c.points[1] for c in comp.cells[1]])
         ordering = [findfirst(isequal(p), comp_points) for p in points]
         DPE.add_field!("Electric field", node_tags, vec_E[ordering])
