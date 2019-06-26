@@ -1,0 +1,1 @@
+DiscretePDEs.jl was developed in 2019 by Michael G. Scheer under the supervision of Hakan E. Türeci and Marcus P. da Silva. Chris Osborn and Dan Girshovich contributed substantially with the build procedures for Gmsh and gdspy. Thanks to Andrew Keller and Alex Mellnik for helpful advice on Julia best practices.
