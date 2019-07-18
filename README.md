@@ -17,7 +17,7 @@ types.
 
 ## Installation
 
-Clone the repository from GitHub. Then use the Julia package manager to `activate` and `build`.
+Clone the repository from GitHub and install Julia 1.1. Then use the Julia package manager to `activate` and `build`. Since the build can take a while, you may prefer `using Pkg; Pkg.build(verbose=true)`.
 
 **Notes on build**: This package has two non-Julia dependencies. One is [Gmsh](http://gmsh.info/), a 3D visualization and meshing program, and the other is [gdspy](https://github.com/heitzmann/gdspy), a Python package for manipulating GDS files. The `deps/build.jl` file configures the `gmsh` and `gdspy` dependencies and installs them if they are not present.
 
