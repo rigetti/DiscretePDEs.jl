@@ -1,0 +1,19 @@
+name = "DiscretePDEs"
+uuid = "c17a56ce-8649-11e9-0b23-1d145938e1f7"
+authors = ["Michael Scheer <mgscheer@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+AdmittanceModels = "88a7bace-b6cd-11e8-0e38-19740a683dcd"
+DiscreteExteriorCalculus = "0a3a9624-8642-11e9-0f42-fd2a0d40ec72"
+DotEnv = "4dc1fcf4-5e3b-5448-94ab-0c38ec0385c1"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+UniqueVectors = "2fbcfb34-fd0c-5fbb-b5d7-e826d8f5b0a9"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

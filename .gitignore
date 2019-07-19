@@ -1,0 +1,5 @@
+*.cov
+*.log
+*.env
+*.geo
+docs/build/
