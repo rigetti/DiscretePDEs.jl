@@ -1,5 +1,10 @@
 # DiscretePDEs.jl
 
+[travis-img]: https://travis-ci.com/rigetti/DiscretePDEs.jl.svg?branch=master
+[travis-url]: https://travis-ci.com/rigetti/DiscretePDEs.jl
+
+[![][travis-img]][travis-url]
+
 DiscretePDEs.jl is a package for discretizing partial differential equations using [DiscreteExteriorCalculus.jl](https://github.com/rigetti/DiscreteExteriorCalculus.jl). 3D visualization and meshing is performed with [Gmsh](http://gmsh.info/). Geometrical models
 can be created using the Gmsh scripting functionality or by importing a GDS file. [LayoutEditor](https://layouteditor.com/) is a convenient program for creating and manipulating GDS files.
 
