@@ -4,7 +4,7 @@ authors = ["Michael Scheer <mgscheer@gmail.com>"]
 version = "0.1.0"
 
 [deps]
-AdmittanceModels = "88a7bace-b6cd-11e8-0e38-19740a683dcd"
+AdmittanceModels = "5eda1363-42a2-4d75-bc45-7e2a4a7b92b2"
 DiscreteExteriorCalculus = "0a3a9624-8642-11e9-0f42-fd2a0d40ec72"
 DotEnv = "4dc1fcf4-5e3b-5448-94ab-0c38ec0385c1"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -17,3 +17,6 @@ UniqueVectors = "2fbcfb34-fd0c-5fbb-b5d7-e826d8f5b0a9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
