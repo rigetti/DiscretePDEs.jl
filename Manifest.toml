@@ -2,10 +2,10 @@
 
 [[AdmittanceModels]]
 deps = ["Combinatorics", "IterativeSolvers", "LinearAlgebra", "MatrixNetworks", "SparseArrays", "Test", "UniqueVectors"]
-git-tree-sha1 = "b31c7f8a34210e35e7b3d48777857010cc6baa88"
+git-tree-sha1 = "30fd19c95db0b6f60150ef197c7095bf39a06f77"
 repo-rev = "master"
 repo-url = "https://github.com/rigetti/AdmittanceModels.jl.git"
-uuid = "88a7bace-b6cd-11e8-0e38-19740a683dcd"
+uuid = "5eda1363-42a2-4d75-bc45-7e2a4a7b92b2"
 version = "0.1.0"
 
 [[Arpack]]
@@ -63,7 +63,7 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[DiscreteExteriorCalculus]]
 deps = ["AdmittanceModels", "Combinatorics", "Documenter", "LinearAlgebra", "MatrixNetworks", "SparseArrays", "StaticArrays", "Statistics", "UniqueVectors"]
-git-tree-sha1 = "89cf0c3ba185b830984a40cec866873bc4a6c1eb"
+git-tree-sha1 = "c8abb6954a0f9fc97143d9b8f6680f491653db28"
 repo-rev = "master"
 repo-url = "https://github.com/rigetti/DiscreteExteriorCalculus.jl.git"
 uuid = "0a3a9624-8642-11e9-0f42-fd2a0d40ec72"
